@@ -30,6 +30,13 @@ Route::get('/', function () {
 
 Route::group(['middleware' => ['web']], function () {
     /**
+     * Admin default route
+     */
+    Route::get('/admin', function(){
+        return view('admin.dashboard', ['base_url' => url('skin/admin')]);
+    });
+
+    /**
      * Show Task Dashboard
      */
     Route::get('/', function () {
