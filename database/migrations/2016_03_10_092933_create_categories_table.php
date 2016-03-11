@@ -23,9 +23,8 @@ class CreateCategoriesTable extends Migration
             $table->integer('status');
             $table->integer('position');
             $table->integer('parent_id');
+            //This will be update on saving product
             $table->integer('num_of_products');
-
-            $table->string('related_products', 255);
 
             $table->timestamps();
         });

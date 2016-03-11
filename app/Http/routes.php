@@ -32,9 +32,18 @@ Route::group(['middleware' => ['web']], function () {
     /**
      * Admin default route
      */
-    Route::get('/admin', function(){
-        return view('admin.dashboard', ['base_url' => url('skin/admin')]);
-    });
+    Route::get('/admin', 'Admin\AdminBaseController@index');
+
+    /**
+     * Category router
+     */
+    Route::get('/admin/category', 'Admin\CategoryController@index');
+
+    Route::get('/admin/category/create', 'Admin\CategoryController@create');
+    Route::post('/admin/category/create', 'Admin\CategoryController@store');
+
+    Route::get('/admin/category/update/{id}', 'Admin\CategoryController@update');
+    Route::post('/admin/category/update', 'Admin\CategoryController@store');
 
     /**
      * Show Task Dashboard
