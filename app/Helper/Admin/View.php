@@ -15,6 +15,13 @@ namespace App\Helper\Admin;
  */
 class View
 {
+    CONST TEXT_TYPE = 'text';
+    CONST TEXT_AREA_TYPE = 'textarea';
+    CONST SELECT_TYPE = 'select';
+    CONST MULTI_SELECT_TYPE = 'multiselect';
+    CONST CHECKBOX_TYPE = 'checkbox';
+    CONST RADIO_TYPE = 'radio';
+
     /**
      * @param $resourceName
      */
@@ -42,7 +49,8 @@ class View
     {
         //No need to pass any data
         return $this->loadView(
-            'admin.'. strtolower($this->_resourceName) .'.create',
+            /* Default route of creating page in admin */
+            'admin.layouts.default.create',
             array_merge($data, [
                 //Here's the default data of views
                 'title' => ucwords('Create new '. $this->_resourceName)
@@ -56,8 +64,9 @@ class View
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function getUpdateView($data = []) {
+        /* Default route of creating page in admin */
         return $this->loadView(
-            'admin.'. strtolower($this->_resourceName) .'.update',
+            'admin.layouts.default.update',
             array_merge($data, [
                 //Here's the default data of views
                 'title' => ucwords('Update '. $this->_resourceName)
@@ -96,6 +105,7 @@ class View
         foreach($fieldHtml as $key => $fieldProperty) {
             $attr [] = $key. '='."'{$fieldProperty}'";
         }
+
 //        var_dump($attr);
         $arrString = implode(' ', $attr);
 
@@ -113,60 +123,101 @@ class View
         ],
      * @param $field
      */
-    public function render($field, $is_default = true) {
+    public function renderInputRequest($field, $value = null) {
         $html = '';
+        $value = $value ? $value : '';
+        $labelValue = $this->_getLabelValue($field);
+
+        $label = '<label>'.$labelValue.'</label>';
 
         $fieldHtml = $field['html'];
-        $label = isset($field['label']) && $field['label'] ? '<label>' . $field['label'] . '</label>' : '';
-
         $arrString = $this->_getAttributeHtml($fieldHtml);
 
         switch($fieldHtml['type']) {
-            case 'text' : {
-                $html.= $label . "<input ". $arrString ."/>";
+            case self::TEXT_TYPE : {
+                $html.= $label . "<input ". $arrString ." value='". $value."'/>";
                 break;
             }
-            case 'textarea' : {
-                $html.= $label . "<textarea ". $arrString ."></textarea>";
+            case self::TEXT_AREA_TYPE : {
+                $html.= $label . "<textarea ". $arrString .">" . $value . "</textarea>";
                 break;
             }
-            case 'select' : {
+            case self::SELECT_TYPE : {
                 if(sizeof($field['options']) > 0) {
-                    $html.= $label . "<select ". $arrString.">";
+                    $html.= $label . "<select ". $arrString." value='".$value."'>";
                     foreach ($field['options'] as $key => $option) {
                         $html.="<option value=".$key.">". $option."</option>";
                     }
                     $html.= "</select>";
+                    break;
                 }
 
                 $html.= $label . ' <br/>'. '<em> No options </em>';
                 break;
             }
-            case 'radio' : {
+            case self::RADIO_TYPE : {
                 /* @Todo Implement later */
 //                $html.= '<label><input '. $arrString.'/>' . $field['label'] .'</label>';
                 break;
             }
-            case 'checkbox' : {
+            case self::CHECKBOX_TYPE : {
                 /* Use checkbox without value */
-                $html.= "<label>" . $field['label']. "</label>";
-                $html.= "<div class='checkbox'><label><input ". $arrString.'/>'.$field['label'].'</label></div>';
+                $html.= $label;
+                $html.=
+                    "<div class='checkbox'>".
+                    "<label><input ". $arrString." ".($value == $fieldHtml['value'] ? 'checked' : ''). "/>" .$labelValue.'</label>".
+                    "</div>';
                 break;
             }
-            case 'multiselect' : {
+            case self::MULTI_SELECT_TYPE : {
                 if(sizeof($field['options']) > 0) {
                     $html.= $label . "<select multiple ". $arrString.">";
                     foreach ($field['options'] as $key => $option) {
                         $html.="<option value=".$key.">". $option."</option>";
                     }
                     $html.= "</select>";
+                    break;
                 }
-
                 $html.= $label . ' <br/>'. ' <em> No options </em> ';
                 break;
             }
         }
 
         return $html;
+    }
+
+    /**
+     * Get Grid header value
+     * @param $field
+     * @return string
+     */
+    public function renderGridHeader($field) {
+        return $this->_getLabelValue($field);
+    }
+
+    /**
+     * Return label value in form edit
+     * @param $field
+     * @return string
+     */
+    protected function _getLabelValue($field) {
+        return isset($field['label']) && $field['label'] ? $field['label'] : ucwords(str_replace('_',' ', $field['html']['name']));
+    }
+
+    /**
+     * Return value in grid base on option
+     * @param $field
+     * @param $value
+     */
+    public function getValue($field, $value) {
+
+        if(
+            isset($field['options']) &&
+            isset($field['options'][$value]) &&
+            ($field['options'][$value] || (is_numeric($field['options'][$value])))
+        ) {
+            return $field['options'][$value];
+        }
+        return $value;
     }
 }

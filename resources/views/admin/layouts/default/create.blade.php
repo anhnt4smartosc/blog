@@ -12,9 +12,11 @@
             <form role="form" method="POST" id="create-form">
                 {!! csrf_field() !!}
                 @foreach ($fields as $field)
-                <div class="form-group">
-                    {!! $viewHelper->render($field) !!}
-                </div>
+                    @if(!isset($field['grid_only']) || $field['grid_only'] == false)
+                        <div class="form-group">
+                            {!! $viewHelper->renderInputRequest($field) !!}
+                        </div>
+                    @endif
                 @endforeach
                 <button type="submit" class="btn btn-default">Submit Button</button>
                 <button type="reset" class="btn btn-default">Reset Button</button>

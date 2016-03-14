@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Category;
 use Illuminate\Http\Request;
 use App\Http\Requests;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
+use Mockery\CountValidator\Exception;
 
 class CategoryController extends AdminBaseController
 {
@@ -14,15 +16,23 @@ class CategoryController extends AdminBaseController
         $this->_resourceName = 'category';
         parent::__construct();
     }
-    /*
-     * List for grid page
+
+    /**
+     * @return array
+     */
+    protected function _loadResourceFields() {
+        return Category::getFieldSource();
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
-        $categoryList = Category::get();
+        $list = Category::get();
 
         return $this->_viewHelper->getGridView(
-            array_merge(['categoryList' => $categoryList], $this->_defaultData)
+            array_merge(['fieldSources' => $this->_loadResourceFields(), 'list' => $list], $this->_defaultData)
         );
     }
 
@@ -31,12 +41,8 @@ class CategoryController extends AdminBaseController
      */
     public function create()
     {
-//        return parent::create();
-
-        $fieldSources = Category::getFieldSource();
-
         return $this->_viewHelper->getCreateView(
-            array_merge($this->_defaultData, [ 'fields' => $fieldSources])
+            array_merge($this->_defaultData, [ 'fields' => $this->_loadResourceFields()])
         );
     }
 
@@ -45,25 +51,80 @@ class CategoryController extends AdminBaseController
      */
     public function store(Request $request)
     {
+        $category = new Category();
+
+        if($id = $request->id) {
+            if(!$category = Category::find($id)) {
+                throw new Exception('Category does not exist.');
+            }
+        }
+
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
+            'name' => 'required|max:255|unique:categories,name'.($id ? ','.$id : ''),
             'description' => 'required|max:255',
             'short_description' => 'required|max:255',
         ]);
 
         if ($validator->fails()) {
-            return redirect('/')
-                ->withInput()
+            return redirect(url('/admin/category'))
+//                ->withInput($request)
                 ->withErrors($validator);
         }
 
-        $category = new Category();
         $category->name = $request->name;
         $category->short_description = $request->short_description;
         $category->description = $request->description;
-        $category->status = $request->status;
+        $category->parent_id = $request->parent_id ? $request->parent_id : Category::DEFAULT_ROOT;
+        $category->position = $request->position;
+        $category->status = $request->status ? $request->status : Category::INACTIVE_STATUS;
         $category->save();
 
-        return redirect('/admin/category');
+        if($id) {
+            Session::flash('success_message', 'Category successfully updated.');
+            return redirect('/admin/category/update/'.$id);
+        }
+        Session::flash('success_message', 'Category successfully added.');
+        return redirect('/admin/category/create');
+    }
+
+    /**
+     * Delete an object
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
+    public function destroy($id) {
+        try {
+            if(!$category = Category::find($id)) {
+                throw new Exception("Category does not exist.");
+            }
+            $category->delete();
+            Session::flash('success_message', 'Category successfully deleted.');
+            return redirect('/admin/category');
+        } catch(Exception $ex) {
+            Session::flash('success_message', $ex->getMessage());
+            return redirect('/admin/category/index');
+        }
+    }
+
+    /**
+     * @param array $configuration
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function update($id) {
+        try {
+            $category = Category::find($id);
+            if(!$category) {
+                throw new Exception('Category does not exist.');
+            }
+            return $this->_viewHelper->getUpdateView(
+                array_merge($this->_defaultData, [
+                    'category' => $category,
+                    'fields' => $this->_loadResourceFields()
+                ])
+            );
+        }
+        catch (Exception $ex) {
+            return redirect('admin/category');
+        }
     }
 }

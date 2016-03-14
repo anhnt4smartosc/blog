@@ -9,6 +9,7 @@
     <meta name="author" content="">
 
     <title>SB Admin 2 - Bootstrap Admin Theme</title>
+
     <!--    Data Table CSS -->
     <link href="{{ $base_skin_url }}/bower_components/datatables-plugins/integration/bootstrap/3/dataTables.bootstrap.css" rel="stylesheet">
     <!-- Bootstrap Core CSS -->
@@ -25,6 +26,8 @@
     <link href="{{ $base_skin_url }}/bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <!-- jQuery -->
     <script src="{{ $base_skin_url }}/bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- jQuery validate -->
+    <script src="{{ $base_skin_url }}/js/jquery.validate.js"></script>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>

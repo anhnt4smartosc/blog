@@ -43,8 +43,9 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('/admin/category/create', 'Admin\CategoryController@store');
 
     Route::get('/admin/category/update/{id}', 'Admin\CategoryController@update');
-    Route::post('/admin/category/update', 'Admin\CategoryController@store');
+    Route::post('/admin/category/update/{id}', 'Admin\CategoryController@store');
 
+    Route::get('/admin/category/delete/{id}', 'Admin\CategoryController@destroy');
     /**
      * Show Task Dashboard
      */

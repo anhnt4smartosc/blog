@@ -7,6 +7,7 @@ use App\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller as Controller;
 use App\Http\Requests;
+use Mockery\CountValidator\Exception;
 
 class AdminBaseController extends Controller
 {
@@ -76,13 +77,5 @@ class AdminBaseController extends Controller
      */
     public function create() {
         return $this->_viewHelper->getCreateView($this->_defaultData);
-    }
-
-    /**
-     * @param array $configuration
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
-    public function update($fields = []) {
-        return $this->_viewHelper->getUpdateView($fields);
     }
 }

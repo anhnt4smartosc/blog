@@ -22,7 +22,7 @@ class CreateCategoriesTable extends Migration
             $table->text('url_key');
             $table->integer('status');
             $table->integer('position');
-            $table->integer('parent_id');
+            $table->integer('parent_id')->default(0);
             //This will be update on saving product
             $table->integer('num_of_products');
 

@@ -11,13 +11,16 @@
             @endif
             <form role="form" method="POST" id="create-form">
                 {!! csrf_field() !!}
-                @foreach ($fields as $field)
-                <div class="form-group">
-                    {!! $viewHelper->render($field) !!}
-                </div>
+                @foreach ($fields as $key=>$field)
+                    @if(!isset($field['grid_only']) || $field['grid_only'] == false)
+                        <div class="form-group">
+                            {!! $viewHelper->renderInputRequest($field, $category->$key) !!}
+                        </div>
+                    @endif
                 @endforeach
                 <button type="submit" class="btn btn-default">Submit Button</button>
                 <button type="reset" class="btn btn-default">Reset Button</button>
+                <button type="button" class="btn btn-danger btn-delete" onclick="window.location = '{{ url('admin/category/delete/'.$category->id)}}'">Delete</button>
             </form>
         </div>
     </div>
@@ -25,6 +28,10 @@
 <script type="text/javascript">
     $('#create-form').validate({
         errorClass : 'form-validation-error'
+    });
+
+    $('.btn-delete').on('click', function(event){
+        return confirm('Sure ?');
     });
 </script>
 @endsection
