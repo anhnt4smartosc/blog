@@ -19,7 +19,7 @@ class Category extends Model
      * @param array $except
      * @return array
      */
-    public static  function generateTree($except = []) {
+    public static  function toOptionsArray($except = []) {
         $result = [];
         $result[0] = 'Root';
 
@@ -114,7 +114,7 @@ class Category extends Model
                     'id' => 'parent_id',
                     'type' => View::SELECT_TYPE
                 ],
-                'options' => self::generateTree()
+                'options' => self::toOptionsArray()
             ],
             'position' => [
                 'html' => [

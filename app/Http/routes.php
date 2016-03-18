@@ -46,6 +46,24 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('/admin/category/update/{id}', 'Admin\CategoryController@store');
 
     Route::get('/admin/category/delete/{id}', 'Admin\CategoryController@destroy');
+    Route::get('/admin/category/preview', 'Admin\CategoryController@preview');
+
+    /**
+     * Product router
+     */
+    Route::get('/admin/product', 'Admin\ProductController@index');
+
+    Route::get('/admin/product/create', 'Admin\ProductController@create');
+    Route::post('/admin/product/create', 'Admin\ProductController@store');
+
+    Route::get('/admin/product/update/{id}', 'Admin\ProductController@update');
+    Route::post('/admin/product/update/{id}', 'Admin\ProductController@store');
+
+    Route::get('/admin/product/upload/', 'Admin\ProductController@upload');
+    Route::post('/admin/product/upload/', 'Admin\ProductController@upload');
+    Route::get('/admin/product/delete/{id}', 'Admin\ProductController@destroy');
+
+
     /**
      * Show Task Dashboard
      */
