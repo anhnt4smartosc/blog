@@ -151,36 +151,36 @@ class ProductController extends AdminBaseController
      */
     public function upload(Request $request) {
         try {
-            // getting all of the post data
-            $file = ['image' => $request->file('image')];
+            $file = $request->file('Filedata');
 
-            var_dump($file);die;
-            // setting up rules
-//            $rules = ['image' => 'required']; //mimes:jpeg,bmp,png and for max size max:10000
-            // doing the validation, passing post data, rules and the messages
-            $validator = Validator::make($file, []);
-            if ($validator->fails()) {
-                throw new Exception('Failed');
+            // checking file is valid.
+
+            if (!$file->isValid()) {
+                throw new Exception('File is invalid. ');
             }
-            else {
-                // checking file is valid.
-                if (Input::file('Filename')->isValid()) {
-                    $destinationPath = 'uploads'; // upload path
-                    $extension = Input::file('Filename')->getClientOriginalExtension(); // getting image extension
-                    $fileName = rand(11111,99999).'.'.$extension; // renameing image
-                    Input::file('Filename')->move($destinationPath, $fileName); // uploading file to given path
-                    // sending back with message
-                    Session::flash('success', 'Upload successfully');
-                    return Redirect::to('upload');
-                }
-                else {
-                    // sending back with error message.
-                    Session::flash('error', 'uploaded file is not valid');
-                    return Redirect::to('upload');
-                }
-            }
+
+            $destinationPath = 'uploads'; // upload path
+            $extension = $file->getClientOriginalExtension(); // getting image extension
+            $origFileName = $file->getClientOriginalName();
+
+            $fileName = str_replace('.' . $extension, '', $origFileName);
+            $fileName = $fileName .'-'. time() . '.' . $extension; // renameing image
+            $file->move($destinationPath, $fileName); // uploading file to given path
+
+            return json_encode([
+                'code' => 200,
+                'status' => 'success',
+                'data' => [
+                    'image_url' => url($destinationPath). DIRECTORY_SEPARATOR . $fileName
+                ]
+            ]);
+
         } catch(Exception $ex) {
-            echo $ex->getMessage();
+            return json_encode([
+                'code' => 500,
+                'status' => 'failed',
+                'message' => $ex->getMessage()
+            ]);
         }
     }
 }

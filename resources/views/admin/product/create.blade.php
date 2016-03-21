@@ -67,8 +67,9 @@
                 </div>
                 <div class="col-lg-12">
                     <h4>Media and galleries</h4>
-                    <div class="form-group">
+                    <div id="image-container" class="form-group">
                         <label>File Input</label>
+                        <input type="hidden" type="text" id="image-path" name="image-path">
                         <input type="file" id="image-file" name="image">
                     </div>
                 </div>
@@ -90,10 +91,22 @@
         'formData' : {'_token' : '{{csrf_token()}}' },
         'swf'      : '{{ $base_skin_url }}/js/uploadify.swf',
         'uploader' : "{{ url('admin/product/upload')}}",
+        'onUploadStart' : function() {
+            $('#image-path').val('');
+            if($('#image-info').length > 0) {
+                $('#image-info').remove();
+            }
+        },
         'onUploadSuccess' : function(file, data, response) {
-            alert('The file ' + file.name + ' was successfully uploaded with a response of ' + response + ':' + data);
+            var result = JSON.parse(data);
+            if(result.code == 200) {
+                var thumbnail = "<img src=' " + result.data.image_url + "' height='50'/>";
+                var imageInfo = "<div id='image-info' class='form-group'> " + thumbnail + "</div>";
+                $(imageInfo).insertAfter('#image-path');
+                $('#image-path').val(result.data.image_url);
+            }
         }
-        // Put your options here
     });
+
 </script>
 @endsection
